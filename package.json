@@ -21,6 +21,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "node-global-key-listener": "^0.3.0",
     "whisper-node": "^1.1.1"
   }
 }
