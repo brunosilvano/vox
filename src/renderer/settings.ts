@@ -6,6 +6,26 @@ interface ModelInfo {
   downloaded: boolean;
 }
 
+// ---- Tab navigation ----
+
+document.querySelectorAll<HTMLButtonElement>(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelector(".tab.active")?.classList.remove("active");
+    document.querySelector(".tab-panel.active")?.classList.remove("active");
+    tab.classList.add("active");
+    document.getElementById(`panel-${tab.dataset.tab}`)?.classList.add("active");
+  });
+});
+
+// ---- Show/hide API key ----
+
+document.getElementById("toggle-apikey")!.addEventListener("click", () => {
+  const input = document.getElementById("llm-apikey") as HTMLInputElement;
+  input.type = input.type === "password" ? "text" : "password";
+});
+
+// ---- Init ----
+
 async function init(): Promise<void> {
   const config = await ipcRenderer.invoke("config:load");
 
@@ -17,6 +37,8 @@ async function init(): Promise<void> {
 
   await loadModels(config.whisper.model);
 }
+
+// ---- Model list ----
 
 async function loadModels(selectedModel: string): Promise<void> {
   const models: ModelInfo[] = await ipcRenderer.invoke("models:list");
@@ -34,7 +56,17 @@ async function loadModels(selectedModel: string): Promise<void> {
     radio.value = model.size;
     radio.checked = model.size === selectedModel;
     label.appendChild(radio);
-    label.append(` ${model.size} — ${model.info.description}`);
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "model-name";
+    nameSpan.textContent = model.size;
+    label.appendChild(nameSpan);
+
+    const descSpan = document.createElement("span");
+    descSpan.className = "model-desc";
+    descSpan.textContent = ` — ${model.info.description}`;
+    label.appendChild(descSpan);
+
     row.appendChild(label);
 
     if (model.downloaded) {
@@ -51,6 +83,7 @@ async function loadModels(selectedModel: string): Promise<void> {
         btn.textContent = "Downloading...";
         await ipcRenderer.invoke("models:download", model.size);
         btn.textContent = "Downloaded";
+        btn.className = "downloaded";
       };
       row.appendChild(btn);
     }
@@ -58,6 +91,8 @@ async function loadModels(selectedModel: string): Promise<void> {
     container.appendChild(row);
   }
 }
+
+// ---- Save ----
 
 document.getElementById("save-btn")!.addEventListener("click", async () => {
   const selectedModel = (document.querySelector('input[name="whisper-model"]:checked') as HTMLInputElement)?.value || "small";
@@ -77,18 +112,28 @@ document.getElementById("save-btn")!.addEventListener("click", async () => {
   };
 
   await ipcRenderer.invoke("config:save", config);
-  document.getElementById("status")!.textContent = "Settings saved.";
+
+  const saveStatus = document.getElementById("save-status")!;
+  saveStatus.textContent = "Settings saved.";
+  saveStatus.classList.add("visible");
+  setTimeout(() => saveStatus.classList.remove("visible"), 2000);
 });
 
-document.getElementById("test-btn")!.addEventListener("click", async () => {
+// ---- Test ----
+
+function setStatus(text: string, type: "info" | "success" | "error" = "info"): void {
   const statusEl = document.getElementById("status")!;
+  statusEl.textContent = text;
+  statusEl.className = `status-box status-${type}`;
+}
+
+document.getElementById("test-btn")!.addEventListener("click", async () => {
   const testBtn = document.getElementById("test-btn") as HTMLButtonElement;
 
   testBtn.disabled = true;
-  statusEl.textContent = "Recording for 3 seconds...";
+  setStatus("Recording for 3 seconds...", "info");
 
   try {
-    // Record audio directly in this visible renderer window
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const audioContext = new AudioContext();
     if (audioContext.state === "suspended") {
@@ -105,14 +150,13 @@ document.getElementById("test-btn")!.addEventListener("click", async () => {
     source.connect(processor);
     processor.connect(audioContext.destination);
 
-    // Wait 3 seconds
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    // Stop recording
     processor.disconnect();
     stream.getTracks().forEach((t) => t.stop());
 
-    // Merge chunks
+    setStatus("Transcribing...", "info");
+
     const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
     const merged = new Float32Array(totalLength);
     let offset = 0;
@@ -124,7 +168,6 @@ document.getElementById("test-btn")!.addEventListener("click", async () => {
     const sampleRate = audioContext.sampleRate;
     audioContext.close();
 
-    // Send raw audio to main process for transcription
     const result = await ipcRenderer.invoke("test:transcribe", {
       audioBuffer: Array.from(merged),
       sampleRate,
@@ -132,13 +175,16 @@ document.getElementById("test-btn")!.addEventListener("click", async () => {
 
     let output = `Whisper: ${result.rawText || "(empty)"}`;
     if (result.correctedText) {
-      output += `\nLLM: ${result.correctedText}`;
+      output += `\nLLM:     ${result.correctedText}`;
+      setStatus(output, "success");
     } else if (result.llmError) {
       output += `\nLLM error: ${result.llmError}`;
+      setStatus(output, "error");
+    } else {
+      setStatus(output, "success");
     }
-    statusEl.textContent = output;
   } catch (err: any) {
-    statusEl.textContent = `Test failed: ${err.message}`;
+    setStatus(`Test failed: ${err.message}`, "error");
   } finally {
     testBtn.disabled = false;
   }
