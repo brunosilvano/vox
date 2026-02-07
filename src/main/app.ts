@@ -67,10 +67,12 @@ function openSettings(): void {
   }
 
   settingsWindow = new BrowserWindow({
-    width: 500,
-    height: 650,
+    width: 540,
+    height: 600,
     title: "Vox Settings",
     resizable: false,
+    titleBarStyle: "hiddenInset",
+    backgroundColor: "#0a0a0a",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

@@ -6,29 +6,120 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Vox Settings</h1>
+  <div class="app">
+    <header class="header">
+      <div class="header-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+        </svg>
+        <span>Vox</span>
+      </div>
+      <span class="header-subtitle">Settings</span>
+    </header>
 
-  <section>
-    <h2>LLM Provider</h2>
-    <label>Endpoint<input type="url" id="llm-endpoint" placeholder="https://..."></label>
-    <label>API Key<input type="password" id="llm-apikey" placeholder="Your API key"></label>
-    <label>Model<input type="text" id="llm-model" placeholder="gpt-4o"></label>
-  </section>
+    <nav class="tabs">
+      <button class="tab active" data-tab="llm">LLM Provider</button>
+      <button class="tab" data-tab="whisper">Whisper Model</button>
+      <button class="tab" data-tab="shortcuts">Shortcuts</button>
+      <button class="tab" data-tab="test">Test</button>
+    </nav>
 
-  <section>
-    <h2>Whisper Model</h2>
-    <div id="model-list"></div>
-  </section>
+    <main class="content">
+      <!-- LLM Provider Tab -->
+      <div class="tab-panel active" id="panel-llm">
+        <div class="card">
+          <div class="card-header">
+            <h2>LLM Provider</h2>
+            <p class="card-description">Configure the language model used for post-processing transcriptions.</p>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="llm-endpoint">Endpoint</label>
+              <input type="url" id="llm-endpoint" placeholder="https://your-resource.services.ai.azure.com/anthropic">
+            </div>
+            <div class="field">
+              <label for="llm-apikey">API Key</label>
+              <div class="input-group">
+                <input type="password" id="llm-apikey" placeholder="Enter your API key">
+                <button class="icon-btn" id="toggle-apikey" title="Show/hide key">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="llm-model">Model</label>
+              <input type="text" id="llm-model" placeholder="gpt-4o">
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <section>
-    <h2>Shortcuts</h2>
-    <label>Hold mode<input type="text" id="shortcut-hold" placeholder="Alt+Space"></label>
-    <label>Toggle mode<input type="text" id="shortcut-toggle" placeholder="Alt+Shift+Space"></label>
-  </section>
+      <!-- Whisper Model Tab -->
+      <div class="tab-panel" id="panel-whisper">
+        <div class="card">
+          <div class="card-header">
+            <h2>Whisper Model</h2>
+            <p class="card-description">Select the local speech recognition model. Larger models are more accurate but slower.</p>
+          </div>
+          <div class="card-body">
+            <div id="model-list"></div>
+          </div>
+        </div>
+      </div>
 
-  <button id="save-btn">Save</button>
-  <button id="test-btn">Test (3s recording)</button>
-  <div id="status"></div>
+      <!-- Shortcuts Tab -->
+      <div class="tab-panel" id="panel-shortcuts">
+        <div class="card">
+          <div class="card-header">
+            <h2>Keyboard Shortcuts</h2>
+            <p class="card-description">Configure the keyboard shortcuts for voice recording.</p>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="shortcut-hold">Hold mode</label>
+              <input type="text" id="shortcut-hold" placeholder="Alt+Space" readonly>
+              <p class="field-hint">Hold to record, release to stop.</p>
+            </div>
+            <div class="field">
+              <label for="shortcut-toggle">Toggle mode</label>
+              <input type="text" id="shortcut-toggle" placeholder="Alt+Shift+Space" readonly>
+              <p class="field-hint">Press once to start, press again to stop.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Tab -->
+      <div class="tab-panel" id="panel-test">
+        <div class="card">
+          <div class="card-header">
+            <h2>Pipeline Test</h2>
+            <p class="card-description">Record a 3-second audio sample to test transcription and LLM correction.</p>
+          </div>
+          <div class="card-body">
+            <button class="btn btn-primary" id="test-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              </svg>
+              Record 3s Test
+            </button>
+            <div id="status" class="status-box"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <button class="btn btn-primary" id="save-btn">Save Changes</button>
+      <div id="save-status" class="save-status"></div>
+    </footer>
+  </div>
 
   <script src="../../dist/renderer/settings.js"></script>
 </body>
