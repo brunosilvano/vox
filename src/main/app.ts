@@ -110,15 +110,18 @@ function setupShortcuts(): void {
       try {
         const text = await pipeline!.stopAndProcess();
         console.log("[Vox] Pipeline complete, text:", text.slice(0, 80));
-        // Hide indicator and wait for the target app to regain focus before pasting
-        indicator!.hide();
-        await new Promise((r) => setTimeout(r, 200));
-        pasteText(text);
-        new Notification({ title: "Vox", body: text || "(empty transcription)" }).show();
+        if (!text.trim()) {
+          indicator!.showError();
+        } else {
+          indicator!.hide();
+          // Wait for the target app to regain focus before pasting
+          await new Promise((r) => setTimeout(r, 200));
+          pasteText(text);
+          new Notification({ title: "Vox", body: text }).show();
+        }
       } catch (err: any) {
         console.error("[Vox] Pipeline failed:", err.message);
-        indicator!.hide();
-        new Notification({ title: "Vox", body: `Failed: ${err.message}` }).show();
+        indicator!.showError();
       } finally {
         stateMachine.setIdle();
         console.log("[Vox] Ready for next recording");

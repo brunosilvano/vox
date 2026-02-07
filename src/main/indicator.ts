@@ -1,11 +1,12 @@
 import { BrowserWindow, screen } from "electron";
 
-type IndicatorMode = "listening" | "transcribing" | "correcting";
+type IndicatorMode = "listening" | "transcribing" | "correcting" | "error";
 
 const LABELS: Record<IndicatorMode, { color: string; text: string; pulse: boolean }> = {
   listening:    { color: "#ff4444", text: "Listening...",    pulse: false },
   transcribing: { color: "#ffaa00", text: "Transcribing...", pulse: true },
   correcting:   { color: "#44aaff", text: "Correcting...",   pulse: true },
+  error:        { color: "#ff4444", text: "Could not understand audio", pulse: false },
 };
 
 function buildHtml(mode: IndicatorMode): string {
@@ -97,6 +98,11 @@ export class IndicatorWindow {
     this.window.once("ready-to-show", () => {
       this.window?.showInactive();
     });
+  }
+
+  showError(durationMs = 3000): void {
+    this.show("error");
+    setTimeout(() => this.hide(), durationMs);
   }
 
   hide(): void {
