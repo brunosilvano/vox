@@ -34,7 +34,7 @@ function initCGEvent(): void {
   AXIsProcessTrusted = appServices.func("AXIsProcessTrusted", "bool", []);
 }
 
-function isAccessibilityGranted(): boolean {
+export function isAccessibilityGranted(): boolean {
   try {
     initCGEvent();
     return AXIsProcessTrusted();
