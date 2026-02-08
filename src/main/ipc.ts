@@ -37,6 +37,14 @@ export function registerIpcHandlers(
     });
   });
 
+  ipcMain.handle("models:cancel-download", (_event, size: string) => {
+    modelManager.cancelDownload(size as WhisperModelSize);
+  });
+
+  ipcMain.handle("models:delete", (_event, size: string) => {
+    modelManager.delete(size as WhisperModelSize);
+  });
+
   ipcMain.handle("llm:test", async () => {
     const { createLlmProvider } = await import("./llm/factory");
     const config = configManager.load();

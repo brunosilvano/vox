@@ -13,7 +13,6 @@ export function Header() {
         {logoSrc && <img alt="Vox" src={logoSrc} className="header-logo" />}
         <span>Vox</span>
       </div>
-      <span className="header-subtitle">Home</span>
     </header>
   );
 }
