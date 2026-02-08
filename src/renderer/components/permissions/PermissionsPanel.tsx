@@ -4,6 +4,7 @@ import { usePermissions } from "../../hooks/use-permissions";
 import { PermissionRow } from "./PermissionRow";
 import { PipelineTest } from "./PipelineTest";
 import { MicIcon, LockIcon } from "../ui/icons";
+import card from "../shared/card.module.scss";
 
 export function PermissionsPanel() {
   const activeTab = useConfigStore((s) => s.activeTab);
@@ -33,12 +34,12 @@ export function PermissionsPanel() {
 
   return (
     <>
-      <div className="card">
-        <div className="card-header">
+      <div className={card.card}>
+        <div className={card.header}>
           <h2>System Permissions</h2>
-          <p className="card-description">Vox requires these macOS permissions to function properly.</p>
+          <p className={card.description}>Vox requires these macOS permissions to function properly.</p>
         </div>
-        <div className="card-body">
+        <div className={card.body}>
           <PermissionRow
             icon={<MicIcon />}
             name="Microphone"
@@ -60,7 +61,7 @@ export function PermissionsPanel() {
         </div>
       </div>
 
-      <div className="card">
+      <div className={card.card}>
         <PipelineTest />
       </div>
     </>

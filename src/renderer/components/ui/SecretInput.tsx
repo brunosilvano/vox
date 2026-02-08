@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { EyeIcon } from "./icons";
+import form from "../shared/forms.module.scss";
 
 interface SecretInputProps {
   id: string;
@@ -12,7 +13,7 @@ export function SecretInput({ id, value, onChange, placeholder }: SecretInputPro
   const [visible, setVisible] = useState(false);
 
   return (
-    <div className="input-group">
+    <div className={form.inputGroup}>
       <input
         id={id}
         type={visible ? "text" : "password"}
@@ -23,7 +24,7 @@ export function SecretInput({ id, value, onChange, placeholder }: SecretInputPro
       <button
         type="button"
         onClick={() => setVisible(!visible)}
-        className="icon-btn"
+        className={form.iconBtn}
         title="Show/hide"
       >
         <EyeIcon />

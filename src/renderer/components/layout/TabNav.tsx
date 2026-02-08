@@ -1,4 +1,5 @@
 import { useConfigStore } from "../../stores/config-store";
+import styles from "./TabNav.module.scss";
 
 const TABS = [
   { id: "llm", label: "LLM Provider" },
@@ -13,12 +14,12 @@ export function TabNav() {
   const setActiveTab = useConfigStore((s) => s.setActiveTab);
 
   return (
-    <nav className="tabs">
+    <nav className={styles.tabs}>
       {TABS.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`tab ${activeTab === tab.id ? "active" : ""}`}
+          className={`${styles.tab} ${activeTab === tab.id ? styles.active : ""}`}
         >
           {tab.label}
         </button>

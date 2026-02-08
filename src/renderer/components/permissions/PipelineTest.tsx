@@ -2,6 +2,8 @@ import { useState } from "react";
 import { recordAudio } from "../../utils/record-audio";
 import { StatusBox } from "../ui/StatusBox";
 import { RecordIcon } from "../ui/icons";
+import card from "../shared/card.module.scss";
+import btn from "../shared/buttons.module.scss";
 
 export function PipelineTest() {
   const [testing, setTesting] = useState(false);
@@ -35,15 +37,15 @@ export function PipelineTest() {
 
   return (
     <>
-      <div className="card-header">
+      <div className={card.header}>
         <h2>Pipeline Test</h2>
-        <p className="card-description">Record a 5-second audio sample to test transcription and LLM correction.</p>
+        <p className={card.description}>Record a 5-second audio sample to test transcription and LLM correction.</p>
       </div>
-      <div className="card-body">
+      <div className={card.body}>
         <button
           onClick={handleTest}
           disabled={testing}
-          className="btn btn-primary"
+          className={`${btn.btn} ${btn.primary}`}
         >
           <RecordIcon />
           Record 5s Test
