@@ -50,6 +50,23 @@ app.whenReady().then(async () => {
   nativeTheme.themeSource = initialConfig.theme;
 
   registerIpcHandlers(configManager, modelManager);
+
+  // Ensure the recommended "small" model is downloaded before starting
+  const recommendedModel = initialConfig.whisper.model;
+  if (!modelManager.isModelDownloaded(recommendedModel)) {
+    console.log(`Downloading recommended model: ${recommendedModel}...`);
+    try {
+      await modelManager.download(recommendedModel, (downloaded, total) => {
+        const percent = ((downloaded / total) * 100).toFixed(1);
+        console.log(`Downloading ${recommendedModel}: ${percent}%`);
+      });
+      console.log(`Model ${recommendedModel} downloaded successfully`);
+    } catch (error) {
+      console.error(`Failed to download model ${recommendedModel}:`, error);
+      throw error;
+    }
+  }
+
   setupPipeline();
 
   shortcutManager = new ShortcutManager({
