@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-root: #0a0a0a;
+  --color-bg-card: #141414;
+  --color-bg-input: #1a1a1a;
+  --color-bg-hover: #1e1e1e;
+  --color-border: #2a2a2a;
+  --color-border-focus: #444;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #888;
+  --color-text-muted: #555;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+}
+
+@keyframes shortcut-pulse {
+  0%, 100% { border-color: var(--color-accent); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  50% { border-color: var(--color-accent); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0); }
+}
+
+@keyframes shortcut-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@utility animate-shortcut-pulse {
+  animation: shortcut-pulse 1.5s ease-in-out infinite;
+}
+
+@utility animate-shortcut-shake {
+  animation: shortcut-shake 0.3s ease-in-out;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--color-bg-root);
+  color: var(--color-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* Titlebar drag region */
+.titlebar-drag {
+  -webkit-app-region: drag;
+}
+
+.titlebar-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
