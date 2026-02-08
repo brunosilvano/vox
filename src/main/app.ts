@@ -6,7 +6,7 @@ import { ModelManager } from "./models/manager";
 import { AudioRecorder } from "./audio/recorder";
 import { transcribe } from "./audio/whisper";
 import { createLlmProvider } from "./llm/factory";
-import { pasteText } from "./input/paster";
+import { pasteText, isAccessibilityGranted } from "./input/paster";
 import { Pipeline } from "./pipeline";
 import { ShortcutStateMachine } from "./shortcuts/listener";
 import { IndicatorWindow } from "./indicator";
@@ -149,6 +149,8 @@ function getHoldKeyCodes(accelerator: string): Set<number> {
 // Set of keycodes for hold mode — releasing ANY of them triggers key-up
 let holdKeyCodes: Set<number> = new Set([UiohookKey.Space]);
 let currentStateMachine: ShortcutStateMachine | null = null;
+let accessibilityWasGranted = false;
+let watchdogTimer: ReturnType<typeof setInterval> | null = null;
 
 function registerShortcutKeys(stateMachine: ShortcutStateMachine): void {
   const config = configManager.load();
@@ -223,6 +225,29 @@ function setupShortcuts(): void {
     }
   });
   uIOhook.start();
+
+  accessibilityWasGranted = isAccessibilityGranted();
+  startAccessibilityWatchdog();
+}
+
+// Poll accessibility permission so we can stop uIOhook before libuiohook
+// enters a tight CGEventTapEnable re-enable loop that freezes the system.
+function startAccessibilityWatchdog(): void {
+  watchdogTimer = setInterval(() => {
+    const granted = isAccessibilityGranted();
+
+    if (accessibilityWasGranted && !granted) {
+      console.warn("[Vox] Accessibility permission revoked — stopping keyboard hook");
+      uIOhook.stop();
+      globalShortcut.unregisterAll();
+    } else if (!accessibilityWasGranted && granted) {
+      console.log("[Vox] Accessibility permission restored — restarting keyboard hook");
+      uIOhook.start();
+      if (currentStateMachine) registerShortcutKeys(currentStateMachine);
+    }
+
+    accessibilityWasGranted = granted;
+  }, 3000);
 }
 
 ipcMain.handle("shortcuts:disable", () => {
@@ -251,6 +276,7 @@ app.whenReady().then(async () => {
 });
 
 app.on("will-quit", () => {
+  if (watchdogTimer) clearInterval(watchdogTimer);
   globalShortcut.unregisterAll();
   uIOhook.stop();
 });
