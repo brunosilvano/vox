@@ -16,7 +16,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dist": "electron-vite build && electron-builder"
+    "dist": "electron-vite build && electron-builder",
+    "postinstall": "make -C node_modules/whisper-node/lib/whisper.cpp main"
   },
   "author": "Rodrigo Silva (https://github.com/rodrigoluizs)",
   "license": "MIT",
