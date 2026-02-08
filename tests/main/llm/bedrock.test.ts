@@ -7,8 +7,8 @@ const { mockSend, mockFromIni } = vi.hoisted(() => ({
 }));
 
 vi.mock("@aws-sdk/client-bedrock-runtime", () => ({
-  BedrockRuntimeClient: vi.fn().mockImplementation(function (this: any) { this.send = mockSend; }),
-  ConverseCommand: vi.fn().mockImplementation(function (this: any, input: unknown) { this.input = input; }),
+  BedrockRuntimeClient: vi.fn().mockImplementation(function (this: Record<string, unknown>) { this.send = mockSend; }),
+  ConverseCommand: vi.fn().mockImplementation(function (this: Record<string, unknown>, input: unknown) { this.input = input; }),
 }));
 
 vi.mock("@aws-sdk/credential-provider-ini", () => ({

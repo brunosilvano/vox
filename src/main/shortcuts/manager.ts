@@ -180,8 +180,8 @@ export class ShortcutManager {
         pasteText(text);
         new Notification({ title: "Vox", body: text }).show();
       }
-    } catch (err: any) {
-      console.error("[Vox] Pipeline failed:", err.message);
+    } catch (err: unknown) {
+      console.error("[Vox] Pipeline failed:", err instanceof Error ? err.message : err);
       this.indicator.showError();
     } finally {
       this.stateMachine.setIdle();

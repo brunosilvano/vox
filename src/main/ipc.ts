@@ -1,7 +1,7 @@
 import { app, ipcMain, nativeImage, systemPreferences, shell } from "electron";
 import { ConfigManager } from "./config/manager";
 import { ModelManager } from "./models/manager";
-import { type VoxConfig } from "../shared/config";
+import { type VoxConfig, type WhisperModelSize } from "../shared/config";
 import { getResourcePath } from "./resources";
 
 export function registerIpcHandlers(
@@ -31,7 +31,7 @@ export function registerIpcHandlers(
   });
 
   ipcMain.handle("models:download", async (_event, size: string) => {
-    await modelManager.download(size as any, (downloaded, total) => {
+    await modelManager.download(size as WhisperModelSize, (downloaded, total) => {
       _event.sender.send("models:download-progress", { size, downloaded, total });
     });
   });
@@ -43,8 +43,8 @@ export function registerIpcHandlers(
       const llm = createLlmProvider(config.llm);
       await llm.correct("Hello");
       return { ok: true };
-    } catch (err: any) {
-      return { ok: false, error: err.message || String(err) };
+    } catch (err: unknown) {
+      return { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
   });
 
@@ -89,8 +89,8 @@ export function registerIpcHandlers(
     try {
       const llm = createLlmProvider(config.llm);
       correctedText = await llm.correct(rawText);
-    } catch (err: any) {
-      llmError = err.message || String(err);
+    } catch (err: unknown) {
+      llmError = err instanceof Error ? err.message : String(err);
     }
 
     return { rawText, correctedText, llmError };
@@ -105,8 +105,8 @@ export function registerIpcHandlers(
       const appServices = koffi.load("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices");
       const AXIsProcessTrusted = appServices.func("AXIsProcessTrusted", "bool", []);
       accessibility = AXIsProcessTrusted();
-    } catch (err: any) {
-      accessibility = `error: ${err.message}`;
+    } catch (err: unknown) {
+      accessibility = `error: ${err instanceof Error ? err.message : String(err)}`;
     }
 
     return {
@@ -149,8 +149,8 @@ export function registerIpcHandlers(
         hasAccessibility,
         mode: hasAccessibility ? "auto-paste" : "clipboard-only",
       };
-    } catch (err: any) {
-      return { ok: false, error: String(err.message || err), hasAccessibility };
+    } catch (err: unknown) {
+      return { ok: false, error: err instanceof Error ? err.message : String(err), hasAccessibility };
     }
   });
 }
