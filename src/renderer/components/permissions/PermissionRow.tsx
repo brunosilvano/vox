@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import styles from "./PermissionRow.module.scss";
+import btn from "../shared/buttons.module.scss";
 
 interface PermissionRowProps {
   icon: ReactNode;
@@ -22,26 +24,26 @@ export function PermissionRow({
   requesting,
 }: PermissionRowProps) {
   return (
-    <div className="permission-row">
-      <div className="permission-info">
+    <div className={styles.row}>
+      <div className={styles.info}>
         {icon}
         <div>
-          <div className="permission-name">{name}</div>
-          <div className="permission-desc">{description}</div>
+          <div className={styles.name}>{name}</div>
+          <div className={styles.desc}>{description}</div>
         </div>
       </div>
-      <div className="permission-action">
+      <div className={styles.action}>
         {granted ? (
-          <span className="permission-badge granted">Granted</span>
+          <span className={`${styles.badge} ${styles.granted}`}>Granted</span>
         ) : (
           <>
-            <span className="permission-badge missing">
+            <span className={`${styles.badge} ${styles.missing}`}>
               {statusText || "Not Granted"}
             </span>
             <button
               onClick={onRequest}
               disabled={requesting}
-              className="btn btn-secondary btn-sm"
+              className={`${btn.btn} ${btn.secondary} ${btn.sm}`}
             >
               {requesting ? "Requesting..." : buttonText}
             </button>

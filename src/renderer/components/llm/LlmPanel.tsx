@@ -4,6 +4,9 @@ import { FoundryFields } from "./FoundryFields";
 import { BedrockFields } from "./BedrockFields";
 import { StatusBox } from "../ui/StatusBox";
 import type { LlmProviderType } from "../../../shared/config";
+import card from "../shared/card.module.scss";
+import btn from "../shared/buttons.module.scss";
+import form from "../shared/forms.module.scss";
 
 export function LlmPanel() {
   const config = useConfigStore((s) => s.config);
@@ -39,13 +42,13 @@ export function LlmPanel() {
   };
 
   return (
-    <div className="card">
-      <div className="card-header">
+    <div className={card.card}>
+      <div className={card.header}>
         <h2>LLM Provider</h2>
-        <p className="card-description">Configure the language model used for post-processing transcriptions.</p>
+        <p className={card.description}>Configure the language model used for post-processing transcriptions.</p>
       </div>
-      <div className="card-body">
-        <div className="field">
+      <div className={card.body}>
+        <div className={form.field}>
           <label htmlFor="llm-provider">Provider</label>
           <select
             id="llm-provider"
@@ -59,11 +62,11 @@ export function LlmPanel() {
 
         {config.llm.provider === "bedrock" ? <BedrockFields /> : <FoundryFields />}
 
-        <div className="test-section">
+        <div className={form.testSection}>
           <button
             onClick={handleTest}
             disabled={testing}
-            className="btn btn-secondary btn-sm"
+            className={`${btn.btn} ${btn.secondary} ${btn.sm}`}
           >
             Test Connection
           </button>

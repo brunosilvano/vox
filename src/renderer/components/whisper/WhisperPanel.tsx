@@ -5,6 +5,9 @@ import { StatusBox } from "../ui/StatusBox";
 import { recordAudio } from "../../utils/record-audio";
 import type { ModelInfo } from "../../../preload/index";
 import type { WhisperModelSize } from "../../../shared/config";
+import card from "../shared/card.module.scss";
+import btn from "../shared/buttons.module.scss";
+import form from "../shared/forms.module.scss";
 
 export function WhisperPanel() {
   const config = useConfigStore((s) => s.config);
@@ -46,12 +49,12 @@ export function WhisperPanel() {
   };
 
   return (
-    <div className="card">
-      <div className="card-header">
+    <div className={card.card}>
+      <div className={card.header}>
         <h2>Whisper Model</h2>
-        <p className="card-description">Select the local speech recognition model. Larger models are more accurate but slower.</p>
+        <p className={card.description}>Select the local speech recognition model. Larger models are more accurate but slower.</p>
       </div>
-      <div className="card-body">
+      <div className={card.body}>
         <div>
           {models.map((model) => (
             <ModelRow
@@ -63,15 +66,15 @@ export function WhisperPanel() {
           ))}
         </div>
 
-        <div className="test-section">
+        <div className={form.testSection}>
           <button
             onClick={handleTest}
             disabled={testing}
-            className="btn btn-secondary btn-sm"
+            className={`${btn.btn} ${btn.secondary} ${btn.sm}`}
           >
             Test Whisper
           </button>
-          <p className="field-hint">Records 5 seconds of audio and runs it through the selected model.</p>
+          <p className={form.hint}>Records 5 seconds of audio and runs it through the selected model.</p>
           <StatusBox text={testStatus.text} type={testStatus.type} />
         </div>
       </div>

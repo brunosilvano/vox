@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { useConfigStore } from "../../stores/config-store";
 import type { ThemeMode } from "../../../shared/config";
+import card from "../shared/card.module.scss";
+import styles from "./AppearancePanel.module.scss";
 
 const THEME_OPTIONS: { value: ThemeMode; label: string; icon: ReactNode }[] = [
   {
@@ -55,17 +57,17 @@ export function AppearancePanel() {
   };
 
   return (
-    <div className="card">
-      <div className="card-header">
+    <div className={card.card}>
+      <div className={card.header}>
         <h2>Theme</h2>
-        <p className="card-description">Choose your preferred appearance.</p>
+        <p className={card.description}>Choose your preferred appearance.</p>
       </div>
-      <div className="card-body">
-        <div className="theme-segmented">
+      <div className={card.body}>
+        <div className={styles.segmented}>
           {THEME_OPTIONS.map((opt) => (
             <button
               key={opt.value}
-              className={`theme-segment ${config.theme === opt.value ? "active" : ""}`}
+              className={`${styles.segment} ${config.theme === opt.value ? styles.active : ""}`}
               onClick={() => setTheme(opt.value)}
             >
               {opt.icon}

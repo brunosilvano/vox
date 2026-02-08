@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import styles from "./Header.module.scss";
 
 export function Header() {
   const [logoSrc, setLogoSrc] = useState("");
@@ -8,9 +9,9 @@ export function Header() {
   }, []);
 
   return (
-    <header className="header">
-      <div className="header-title">
-        {logoSrc && <img alt="Vox" src={logoSrc} className="header-logo" />}
+    <header className={styles.header}>
+      <div className={styles.title}>
+        {logoSrc && <img alt="Vox" src={logoSrc} className={styles.logo} />}
         <span>Vox</span>
       </div>
     </header>

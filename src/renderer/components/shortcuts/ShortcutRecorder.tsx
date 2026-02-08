@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import styles from "./ShortcutRecorder.module.scss";
+import form from "../shared/forms.module.scss";
 
 const CODE_TO_KEY: Record<string, string> = {
   Space: "Space", Enter: "Enter", Backspace: "Backspace", Tab: "Tab",
@@ -122,13 +124,13 @@ export function ShortcutRecorder({ label, hint, value, otherValue, onChange }: S
     : parseAccelerator(value);
 
   const fieldClasses = [
-    "shortcut-field",
-    recording && "recording",
-    conflict && "conflict",
+    styles.field,
+    recording && styles.recording,
+    conflict && styles.conflict,
   ].filter(Boolean).join(" ");
 
   return (
-    <div className="field">
+    <div className={form.field}>
       <label>{label}</label>
       <div
         ref={fieldRef}
@@ -136,19 +138,19 @@ export function ShortcutRecorder({ label, hint, value, otherValue, onChange }: S
         className={fieldClasses}
         tabIndex={0}
       >
-        <span className="shortcut-display">
+        <span>
           {displayParts.map((part, i) => (
             <span key={i}>
-              {i > 0 && <span className="separator">+</span>}
-              <kbd>{PLATFORM_LABELS[part] || part}</kbd>
+              {i > 0 && <span className={styles.separator}>+</span>}
+              <kbd className={styles.kbd}>{PLATFORM_LABELS[part] || part}</kbd>
             </span>
           ))}
         </span>
         {recording && previewParts.length === 0 && (
-          <span className="shortcut-placeholder">Press shortcut...</span>
+          <span className={styles.placeholder}>Press shortcut...</span>
         )}
       </div>
-      <p className="field-hint">{hint}</p>
+      <p className={form.hint}>{hint}</p>
     </div>
   );
 }

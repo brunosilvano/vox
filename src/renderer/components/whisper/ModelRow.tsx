@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { ModelInfo } from "../../../preload/index";
 import { TrashIcon, XIcon } from "../ui/icons";
+import styles from "./ModelRow.module.scss";
 
 interface ModelRowProps {
   model: ModelInfo;
@@ -72,7 +73,7 @@ export function ModelRow({ model, selected, onSelect }: ModelRowProps) {
     : 0;
 
   return (
-    <div className="model-row">
+    <div className={styles.row}>
       <label>
         <input
           type="radio"
@@ -81,24 +82,24 @@ export function ModelRow({ model, selected, onSelect }: ModelRowProps) {
           checked={selected}
           onChange={() => onSelect(model.size)}
         />
-        <span className="model-name">{model.size}</span>
-        <span className="model-desc">{model.info.description}</span>
+        <span className={styles.name}>{model.size}</span>
+        <span className={styles.desc}>{model.info.description}</span>
       </label>
       {downloading ? (
-        <div className="model-progress">
-          <div className="progress-info">
+        <div className={styles.progress}>
+          <div className={styles.progressInfo}>
             <span>{percent}%</span>
-            <span className="progress-size">
+            <span className={styles.progressSize}>
               {formatBytes(progress.downloaded)} / {formatBytes(progress.total)}
             </span>
           </div>
-          <div className="progress-bar-row">
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${percent}%` }} />
+          <div className={styles.progressBarRow}>
+            <div className={styles.progressBar}>
+              <div className={styles.progressFill} style={{ width: `${percent}%` }} />
             </div>
             <button
               onClick={handleCancel}
-              className="cancel-btn"
+              className={styles.cancelBtn}
               title="Cancel download"
             >
               <XIcon />
@@ -106,16 +107,16 @@ export function ModelRow({ model, selected, onSelect }: ModelRowProps) {
           </div>
         </div>
       ) : downloaded ? (
-        <div className="model-actions">
-          <span className="downloaded">Downloaded</span>
+        <div className={styles.actions}>
+          <span className={styles.downloaded}>Downloaded</span>
           {confirmingDelete ? (
-            <button onClick={handleDeleteClick} className="confirm-delete-btn">
+            <button onClick={handleDeleteClick} className={styles.confirmDeleteBtn}>
               Confirm?
             </button>
           ) : (
             <button
               onClick={handleDeleteClick}
-              className="delete-btn"
+              className={styles.deleteBtn}
               title="Delete model"
             >
               <TrashIcon />
@@ -126,7 +127,7 @@ export function ModelRow({ model, selected, onSelect }: ModelRowProps) {
         <button
           onClick={handleDownload}
           disabled={downloading}
-          className="download-btn"
+          className={styles.downloadBtn}
         >
           Download
         </button>

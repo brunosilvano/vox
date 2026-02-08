@@ -1,5 +1,7 @@
 import { useConfigStore } from "../../stores/config-store";
 import { ShortcutRecorder } from "./ShortcutRecorder";
+import card from "../shared/card.module.scss";
+import btn from "../shared/buttons.module.scss";
 
 export function ShortcutsPanel() {
   const config = useConfigStore((s) => s.config);
@@ -24,12 +26,12 @@ export function ShortcutsPanel() {
   };
 
   return (
-    <div className="card">
-      <div className="card-header">
+    <div className={card.card}>
+      <div className={card.header}>
         <h2>Keyboard Shortcuts</h2>
-        <p className="card-description">Configure the keyboard shortcuts for voice recording. Click a field and press your desired key combination.</p>
+        <p className={card.description}>Configure the keyboard shortcuts for voice recording. Click a field and press your desired key combination.</p>
       </div>
-      <div className="card-body">
+      <div className={card.body}>
         <ShortcutRecorder
           label="Hold mode"
           hint="Hold to record, release to stop."
@@ -46,7 +48,7 @@ export function ShortcutsPanel() {
         />
         <button
           onClick={restoreDefaults}
-          className="btn btn-secondary btn-sm"
+          className={`${btn.btn} ${btn.secondary} ${btn.sm}`}
           style={{ marginTop: 8 }}
         >
           Restore Defaults
