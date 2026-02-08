@@ -15,7 +15,7 @@ import { registerIpcHandlers } from "./ipc";
 let tray: Tray | null = null;
 let pipeline: Pipeline | null = null;
 let indicator: IndicatorWindow | null = null;
-let settingsWindow: BrowserWindow | null = null;
+let homeWindow: BrowserWindow | null = null;
 
 const configDir = path.join(app.getPath("userData"));
 const modelsDir = path.join(configDir, "models");
@@ -52,7 +52,7 @@ function setupTray(): void {
   tray = new Tray(icon);
 
   const contextMenu = Menu.buildFromTemplate([
-    { label: "Settings", click: () => openSettings() },
+    { label: "Home", click: () => openHome() },
     { type: "separator" },
     { label: "Quit", click: () => app.quit() },
   ]);
@@ -60,18 +60,18 @@ function setupTray(): void {
   tray.setContextMenu(contextMenu);
 }
 
-function openSettings(): void {
-  if (settingsWindow) {
-    settingsWindow.focus();
+function openHome(): void {
+  if (homeWindow) {
+    homeWindow.focus();
     return;
   }
 
-  settingsWindow = new BrowserWindow({
+  homeWindow = new BrowserWindow({
     width: 580,
     height: 720,
     minWidth: 520,
     minHeight: 640,
-    title: "Vox Settings",
+    title: "Vox",
     titleBarStyle: "hiddenInset",
     backgroundColor: "#0a0a0a",
     webPreferences: {
@@ -80,10 +80,14 @@ function openSettings(): void {
     },
   });
 
-  settingsWindow.loadFile(path.join(__dirname, "../../src/renderer/index.html"));
+  if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
+    homeWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
+  } else {
+    homeWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+  }
 
-  settingsWindow.on("closed", () => {
-    settingsWindow = null;
+  homeWindow.on("closed", () => {
+    homeWindow = null;
     // Reload pipeline and re-register shortcuts in case config changed
     setupPipeline();
     if (currentStateMachine) {
