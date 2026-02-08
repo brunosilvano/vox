@@ -9,7 +9,7 @@ export function LlmPanel() {
   const updateConfig = useConfigStore((s) => s.updateConfig);
   const saveConfig = useConfigStore((s) => s.saveConfig);
   const [testing, setTesting] = useState(false);
-  const [testStatus, setTestStatus] = useState({ text: "", type: "info" as const });
+  const [testStatus, setTestStatus] = useState<{ text: string; type: "info" | "success" | "error" }>({ text: "", type: "info" });
 
   if (!config) return null;
 
