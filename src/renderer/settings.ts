@@ -1,10 +1,4 @@
-import { ipcRenderer } from "electron";
-
-interface ModelInfo {
-  size: string;
-  info: { description: string; sizeBytes: number };
-  downloaded: boolean;
-}
+import type { ModelInfo } from "../preload/index";
 
 // ---- Shortcut recorder ----
 
@@ -92,7 +86,7 @@ function startRecording(fieldId: string): void {
   display.innerHTML = "";
 
   // Disable global shortcuts so they don't fire while recording
-  ipcRenderer.invoke("shortcuts:disable");
+  window.voxApi.shortcuts.disable();
 }
 
 function stopRecording(cancel: boolean): void {
@@ -110,7 +104,7 @@ function stopRecording(cancel: boolean): void {
   previousValue = "";
 
   // Re-enable global shortcuts from the saved config on disk
-  ipcRenderer.invoke("shortcuts:enable");
+  window.voxApi.shortcuts.enable();
 }
 
 function handleShortcutKeyDown(e: KeyboardEvent): void {
@@ -291,7 +285,7 @@ document.getElementById("llm-test-btn")!.addEventListener("click", async () => {
   await saveConfig();
 
   try {
-    const result = await ipcRenderer.invoke("llm:test");
+    const result = await window.voxApi.llm.test();
     if (result.ok) {
       setTestStatus("Connection successful", "success");
     } else {
@@ -322,7 +316,7 @@ document.getElementById("whisper-test-btn")!.addEventListener("click", async () 
   try {
     const recording = await recordAudio(5);
     setWhisperTestStatus("Transcribing...", "info");
-    const text = await ipcRenderer.invoke("whisper:test", recording);
+    const text = await window.voxApi.whisper.test(recording);
     setWhisperTestStatus(text || "(no speech detected)", text ? "success" : "info");
   } catch (err: any) {
     setWhisperTestStatus(`Test failed: ${err.message}`, "error");
@@ -334,7 +328,7 @@ document.getElementById("whisper-test-btn")!.addEventListener("click", async () 
 // ---- Init ----
 
 async function init(): Promise<void> {
-  const config = await ipcRenderer.invoke("config:load");
+  const config = await window.voxApi.config.load();
 
   (document.getElementById("llm-provider") as HTMLSelectElement).value = config.llm.provider || "foundry";
   (document.getElementById("llm-endpoint") as HTMLInputElement).value = config.llm.endpoint;
@@ -349,7 +343,7 @@ async function init(): Promise<void> {
   setShortcutValue("shortcut-toggle", config.shortcuts.toggle);
 
   // Load logo as data URL from main process (resources are in extraResources, not in the asar)
-  const logoDataUrl: string = await ipcRenderer.invoke("resources:data-url", "trayIcon@8x.png");
+  const logoDataUrl: string = await window.voxApi.resources.dataUrl("trayIcon@8x.png");
   const logoEl = document.getElementById("header-logo") as HTMLImageElement;
   if (logoEl) logoEl.src = logoDataUrl;
 
@@ -361,7 +355,7 @@ async function init(): Promise<void> {
 // ---- Model list ----
 
 async function loadModels(selectedModel: string): Promise<void> {
-  const models: ModelInfo[] = await ipcRenderer.invoke("models:list");
+  const models: ModelInfo[] = await window.voxApi.models.list();
   const container = document.getElementById("model-list")!;
   container.innerHTML = "";
 
@@ -401,7 +395,7 @@ async function loadModels(selectedModel: string): Promise<void> {
       btn.onclick = async () => {
         btn.disabled = true;
         btn.textContent = "Downloading...";
-        await ipcRenderer.invoke("models:download", model.size);
+        await window.voxApi.models.download(model.size);
         btn.textContent = "Downloaded";
         btn.className = "downloaded";
       };
@@ -440,8 +434,8 @@ function gatherConfig() {
 }
 
 async function saveConfig(): Promise<void> {
-  await ipcRenderer.invoke("config:save", gatherConfig());
-  await ipcRenderer.invoke("shortcuts:enable");
+  await window.voxApi.config.save(gatherConfig());
+  await window.voxApi.shortcuts.enable();
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -462,7 +456,7 @@ document.getElementById("llm-provider")!.addEventListener("change", () => saveCo
 // ---- Permissions ----
 
 async function refreshPermissions(): Promise<void> {
-  const status = await ipcRenderer.invoke("permissions:status");
+  const status = await window.voxApi.permissions.status();
 
   const micBadge = document.getElementById("perm-mic-badge")!;
   const micBtn = document.getElementById("perm-mic-btn")!;
@@ -497,14 +491,14 @@ document.getElementById("perm-mic-btn")!.addEventListener("click", async () => {
   const btn = document.getElementById("perm-mic-btn") as HTMLButtonElement;
   btn.disabled = true;
   btn.textContent = "Requesting...";
-  await ipcRenderer.invoke("permissions:request-microphone");
+  await window.voxApi.permissions.requestMicrophone();
   await refreshPermissions();
   btn.disabled = false;
   btn.textContent = "Grant Access";
 });
 
 document.getElementById("perm-acc-btn")!.addEventListener("click", async () => {
-  await ipcRenderer.invoke("permissions:request-accessibility");
+  await window.voxApi.permissions.requestAccessibility();
 });
 
 // Refresh permissions when switching to the permissions tab
@@ -539,7 +533,7 @@ document.getElementById("test-btn")!.addEventListener("click", async () => {
 
     setStatus("Transcribing...", "info");
 
-    const result = await ipcRenderer.invoke("test:transcribe", recording);
+    const result = await window.voxApi.pipeline.testTranscribe(recording);
 
     let output = `Whisper: ${result.rawText || "(empty)"}`;
     if (result.correctedText) {

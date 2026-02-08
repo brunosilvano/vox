@@ -75,8 +75,10 @@ function openHome(): void {
     titleBarStyle: "hiddenInset",
     backgroundColor: "#0a0a0a",
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: false,
+      preload: path.join(__dirname, "../preload/index.js"),
     },
   });
 
