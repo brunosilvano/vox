@@ -1,6 +1,6 @@
 {
   "name": "vox",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Open-source macOS voice-to-text with local Whisper transcription and LLM correction",
   "main": "out/main/index.js",
   "engines": {
@@ -71,8 +71,16 @@
     "dmg": {
       "title": "Vox",
       "contents": [
-        { "x": 130, "y": 220 },
-        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     },
     "files": [
