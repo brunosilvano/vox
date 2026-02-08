@@ -10,7 +10,7 @@ export function setupTray(onOpenHome: () => void): void {
   tray = new Tray(icon);
 
   const contextMenu = Menu.buildFromTemplate([
-    { label: "Home", click: onOpenHome },
+    { label: "Show Vox", click: onOpenHome },
     { type: "separator" },
     { label: "Quit", click: () => app.quit() },
   ]);
