@@ -26,8 +26,8 @@ export function PipelineTest() {
       } else {
         setTestStatus({ text: output, type: "success" });
       }
-    } catch (err: any) {
-      setTestStatus({ text: `Test failed: ${err.message}`, type: "error" });
+    } catch (err: unknown) {
+      setTestStatus({ text: `Test failed: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     } finally {
       setTesting(false);
     }

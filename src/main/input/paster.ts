@@ -6,25 +6,26 @@ const kCGEventFlagMaskCommand = 0x100000;
 const kCGHIDEventTap = 0;
 const kVirtualKeyV = 9;
 
-let cg: any;
-let cf: any;
-let appServices: any;
-let CGEventSourceCreate: any;
-let CGEventCreateKeyboardEvent: any;
-let CGEventSetFlags: any;
-let CGEventPost: any;
-let CFRelease: any;
-let AXIsProcessTrusted: any;
+// Opaque native pointer returned by koffi FFI calls
+type Pointer = NonNullable<unknown>;
+
+let initialized = false;
+let CGEventSourceCreate!: (stateId: number) => Pointer | null;
+let CGEventCreateKeyboardEvent!: (source: Pointer, keyCode: number, keyDown: boolean) => Pointer;
+let CGEventSetFlags!: (event: Pointer, flags: number) => void;
+let CGEventPost!: (tap: number, event: Pointer) => void;
+let CFRelease!: (ref: Pointer) => void;
+let AXIsProcessTrusted!: () => boolean;
 
 function initCGEvent(): void {
-  if (cg) return;
+  if (initialized) return;
+  initialized = true;
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const koffi = require("koffi");
 
-  cg = koffi.load("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics");
-  cf = koffi.load("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation");
-  appServices = koffi.load("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices");
+  const cg = koffi.load("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics");
+  const cf = koffi.load("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation");
+  const appServices = koffi.load("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices");
 
   CGEventSourceCreate = cg.func("CGEventSourceCreate", "void *", ["int32"]);
   CGEventCreateKeyboardEvent = cg.func("CGEventCreateKeyboardEvent", "void *", ["void *", "uint16", "bool"]);
@@ -76,8 +77,8 @@ export function pasteText(text: string): void {
   if (isAccessibilityGranted()) {
     try {
       simulatePaste();
-    } catch (err: any) {
-      const msg = String(err.message || err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
       new Notification({
         title: "Vox",
         body: `Auto-paste failed: ${msg.slice(0, 120)}. Text is on your clipboard.`,

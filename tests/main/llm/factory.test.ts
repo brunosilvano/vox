@@ -7,7 +7,7 @@ vi.mock("../../../src/main/llm/bedrock", () => ({
 import { createLlmProvider } from "../../../src/main/llm/factory";
 import { FoundryProvider } from "../../../src/main/llm/foundry";
 import { BedrockProvider } from "../../../src/main/llm/bedrock";
-import { type LlmConfig } from "../../../src/shared/config";
+import { type LlmConfig, type LlmProviderType } from "../../../src/shared/config";
 
 function makeConfig(overrides: Partial<LlmConfig> = {}): LlmConfig {
   return {
@@ -54,7 +54,7 @@ describe("createLlmProvider", () => {
 
   it("should default to FoundryProvider for unknown provider", () => {
     const provider = createLlmProvider(makeConfig({
-      provider: "unknown" as any,
+      provider: "unknown" as LlmProviderType,
       endpoint: "https://example.com",
       apiKey: "key",
       model: "claude",

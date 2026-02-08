@@ -31,8 +31,8 @@ export function LlmPanel() {
       } else {
         setTestStatus({ text: `Connection failed: ${result.error}`, type: "error" });
       }
-    } catch (err: any) {
-      setTestStatus({ text: `Connection failed: ${err.message}`, type: "error" });
+    } catch (err: unknown) {
+      setTestStatus({ text: `Connection failed: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     } finally {
       setTesting(false);
     }

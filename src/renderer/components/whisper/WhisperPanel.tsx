@@ -4,6 +4,7 @@ import { ModelRow } from "./ModelRow";
 import { StatusBox } from "../ui/StatusBox";
 import { recordAudio } from "../../utils/record-audio";
 import type { ModelInfo } from "../../../preload/index";
+import type { WhisperModelSize } from "../../../shared/config";
 
 export function WhisperPanel() {
   const config = useConfigStore((s) => s.config);
@@ -20,7 +21,7 @@ export function WhisperPanel() {
   if (!config) return null;
 
   const handleSelect = (size: string) => {
-    updateConfig({ whisper: { model: size as any } });
+    updateConfig({ whisper: { model: size as WhisperModelSize } });
     saveConfig();
   };
 
@@ -37,8 +38,8 @@ export function WhisperPanel() {
         text: text || "(no speech detected)",
         type: text ? "success" : "info",
       });
-    } catch (err: any) {
-      setTestStatus({ text: `Test failed: ${err.message}`, type: "error" });
+    } catch (err: unknown) {
+      setTestStatus({ text: `Test failed: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     } finally {
       setTesting(false);
     }
