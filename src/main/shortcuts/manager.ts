@@ -2,7 +2,7 @@ import { globalShortcut, ipcMain, Notification } from "electron";
 import { uIOhook, UiohookKey } from "uiohook-napi";
 import { type ConfigManager } from "../config/manager";
 import { pasteText, isAccessibilityGranted } from "../input/paster";
-import { type Pipeline } from "../pipeline";
+import { type Pipeline, CanceledError } from "../pipeline";
 import { ShortcutStateMachine } from "./listener";
 import { IndicatorWindow } from "../indicator";
 
@@ -104,6 +104,22 @@ export class ShortcutManager {
         this.stateMachine.handleHoldKeyUp();
       }
     });
+
+    // Register Escape key listener for cancellation
+    uIOhook.on("keydown", (e) => {
+      if (e.keycode === UiohookKey.Escape) {
+        const state = this.stateMachine.getState();
+        // Cancel if we're recording (hold/toggle) or processing
+        if (state === "hold" || state === "toggle" || state === "processing") {
+          console.log("[Vox] Escape pressed, canceling operation");
+          const pipeline = this.deps.getPipeline();
+          pipeline.cancel();
+          this.indicator.showCanceled();
+          this.stateMachine.setIdle();
+        }
+      }
+    });
+
     uIOhook.start();
 
     this.accessibilityWasGranted = isAccessibilityGranted();
@@ -145,9 +161,9 @@ export class ShortcutManager {
     const state = this.stateMachine.getState();
     if (state === "hold" || state === "toggle" || state === "processing") {
       console.log("[Vox] Cancel requested from tray");
-      // Note: pipeline.cancel() will be added in the escape-cancellation PR
-      // For now, just reset state
-      this.indicator.showError();
+      const pipeline = this.deps.getPipeline();
+      pipeline.cancel();
+      this.indicator.showCanceled();
       this.stateMachine.setIdle();
       this.updateTrayState();
     }
@@ -276,8 +292,13 @@ export class ShortcutManager {
         new Notification({ title: "Vox", body: trimmedText }).show();
       }
     } catch (err: unknown) {
-      console.error("[Vox] Pipeline failed:", err instanceof Error ? err.message : err);
-      this.indicator.showError();
+      if (err instanceof CanceledError) {
+        console.log("[Vox] Operation canceled by user");
+        this.indicator.showCanceled();
+      } else {
+        console.error("[Vox] Pipeline failed:", err instanceof Error ? err.message : err);
+        this.indicator.showError();
+      }
     } finally {
       this.stateMachine.setIdle();
       this.updateTrayState();
