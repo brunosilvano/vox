@@ -18,6 +18,77 @@
   --color-success: #22c55e;
   --color-error: #ef4444;
   --color-warning: #f59e0b;
+
+  /* Spacing scale */
+  --spacing-0: 0;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+
+  /* Micro spacing */
+  --spacing-half: 2px;
+  --spacing-0-75: 3px;
+  --spacing-1-5: 6px;
+  --spacing-2-5: 10px;
+
+  /* Typography scale */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 15px;
+
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Line heights */
+  --line-height-none: 1;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+
+  /* Letter spacing */
+  --letter-spacing-tight: -0.01em;
+
+  /* Border radius */
+  --radius-sm: 3px;
+  --radius-base: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 100px;
+
+  /* Common sizes */
+  --size-icon-sm: 16px;
+  --size-icon-base: 20px;
+  --size-icon-md: 24px;
+  --size-icon-lg: 28px;
+  --size-icon-xl: 32px;
+
+  /* Min heights */
+  --min-h-input: 38px;
+  --min-h-card: 56px;
+
+  /* Min widths */
+  --min-w-button: 24px;
+  --min-w-select: 180px;
+
+  /* Shadows */
+  --shadow-toast: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  /* Animation durations */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --duration-pulse: 1.5s;
+  --duration-shake: 0.4s;
+
+  /* Animation easings */
+  --ease-default: ease;
 }
 
 /*
@@ -42,6 +113,69 @@
   --color-success: #22c55e;
   --color-error: #ef4444;
   --color-warning: #f59e0b;
+
+  /* Spacing scale duplicates for tree-shaking workaround */
+  --spacing-0: 0;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-half: 2px;
+  --spacing-0-75: 3px;
+  --spacing-1-5: 6px;
+  --spacing-2-5: 10px;
+
+  /* Typography duplicates */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 15px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-none: 1;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+  --letter-spacing-tight: -0.01em;
+
+  /* Sizing duplicates */
+  --radius-sm: 3px;
+  --radius-base: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 100px;
+  --size-icon-sm: 16px;
+  --size-icon-base: 20px;
+  --size-icon-md: 24px;
+  --size-icon-lg: 28px;
+  --size-icon-xl: 32px;
+  --min-h-input: 38px;
+  --min-h-card: 56px;
+  --min-w-button: 24px;
+  --min-w-select: 180px;
+
+  /* Shadow and animation duplicates */
+  --shadow-toast: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --duration-pulse: 1.5s;
+  --duration-shake: 0.4s;
+  --ease-default: ease;
+
+  /* Color opacity variants - dark theme */
+  --color-success-bg-light: rgba(34, 197, 94, 0.1);
+  --color-success-border: rgba(34, 197, 94, 0.15);
+  --color-error-bg-light: rgba(239, 68, 68, 0.1);
+  --color-error-border: rgba(239, 68, 68, 0.15);
+  --color-error-border-hover: rgba(239, 68, 68, 0.2);
+  --color-warning-bg-light: rgba(245, 158, 11, 0.1);
+  --color-warning-border: rgba(245, 158, 11, 0.15);
+  --color-shadow: rgba(0, 0, 0, 0.3);
 }
 
 /* ---- Light theme overrides ---- */
@@ -65,6 +199,16 @@
   --color-success: #16a34a;
   --color-error: #dc2626;
   --color-warning: #d97706;
+
+  /* Color opacity variants - light theme (same values work) */
+  --color-success-bg-light: rgba(34, 197, 94, 0.1);
+  --color-success-border: rgba(34, 197, 94, 0.15);
+  --color-error-bg-light: rgba(239, 68, 68, 0.1);
+  --color-error-border: rgba(239, 68, 68, 0.15);
+  --color-error-border-hover: rgba(239, 68, 68, 0.2);
+  --color-warning-bg-light: rgba(245, 158, 11, 0.1);
+  --color-warning-border: rgba(245, 158, 11, 0.15);
+  --color-shadow: rgba(0, 0, 0, 0.15);
 }
 
 /* ---- Base reset & body ---- */
