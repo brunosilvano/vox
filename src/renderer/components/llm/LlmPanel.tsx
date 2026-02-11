@@ -93,6 +93,13 @@ export function LlmPanel() {
         <p className={card.description}>
           Enhance your transcriptions by automatically fixing grammar, removing filler words, and cleaning up your speech.
         </p>
+        <button
+          type="button"
+          onClick={() => window.voxApi.shell.openExternal("https://github.com/app-vox/vox?tab=readme-ov-file#configuration")}
+          className={card.learnMore}
+        >
+          Learn more →
+        </button>
       </div>
       <div className={card.body}>
         <div className={form.field}>
