@@ -3,6 +3,7 @@ import { execFile } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import { WHISPER_PROMPT } from "../../shared/constants";
 
 export interface TranscriptionResult {
   text: string;
@@ -40,7 +41,15 @@ function runWhisper(modelPath: string, filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     execFile(
       WHISPER_BIN,
-      ["-l", "auto", "-m", modelPath, "-f", filePath],
+      [
+        "-l", "auto",
+        "-m", modelPath,
+        "-f", filePath,
+        "--best-of", "5",         // Greedy default (whisper.cpp max decoders = 8)
+        "--beam-size", "5",       // Enable beam search (greedy is the CLI default)
+        "--entropy-thold", "2.0", // Lower threshold = more conservative (default: 2.4)
+        "--prompt", WHISPER_PROMPT,
+      ],
       { cwd: WHISPER_CPP_DIR, timeout: 30000 },
       (error, stdout, stderr) => {
         if (error) {

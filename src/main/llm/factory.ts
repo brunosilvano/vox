@@ -1,22 +1,31 @@
 import { type LlmProvider } from "./provider";
 import { type VoxConfig } from "../../shared/config";
-import { LLM_SYSTEM_PROMPT } from "../../shared/constants";
+import { buildSystemPrompt } from "../../shared/constants";
 import { FoundryProvider } from "./foundry";
 import { BedrockProvider } from "./bedrock";
 import { OpenAICompatibleProvider } from "./openai-compatible";
 import { NoopProvider } from "./noop";
 
 export function createLlmProvider(config: VoxConfig): LlmProvider {
+  const isDev = process.env.NODE_ENV === "development";
+
   // If LLM enhancement is disabled, return no-op provider
   if (!config.enableLlmEnhancement) {
+    console.log("[LLM Factory] LLM enhancement is disabled, using NoopProvider");
     return new NoopProvider();
   }
 
-  // Append custom prompt AFTER default system prompt (only if custom is not empty)
+  // Append custom prompt at the END with CRITICAL emphasis (only if custom is not empty)
   const customPrompt = config.customPrompt?.trim();
-  const prompt = customPrompt
-    ? `${LLM_SYSTEM_PROMPT}\n\nADDITIONAL CUSTOM INSTRUCTIONS:\n${customPrompt}`
-    : LLM_SYSTEM_PROMPT;
+  const hasCustomPrompt = !!customPrompt;
+  const prompt = buildSystemPrompt(customPrompt || "");
+
+  console.log("[LLM Factory] Creating provider:", config.llm.provider);
+  console.log("[LLM Factory] Custom prompt:", hasCustomPrompt ? "YES" : "NO");
+  if (isDev && hasCustomPrompt) {
+    console.log("[LLM Factory] [DEV] Custom prompt content:", customPrompt);
+    console.log("[LLM Factory] [DEV] Full system prompt length:", prompt.length);
+  }
 
   // Otherwise route to configured provider
   switch (config.llm.provider) {
@@ -28,6 +37,7 @@ export function createLlmProvider(config: VoxConfig): LlmProvider {
         secretAccessKey: config.llm.secretAccessKey,
         modelId: config.llm.modelId,
         customPrompt: prompt,
+        hasCustomPrompt,
       });
 
     case "openai":
@@ -38,6 +48,7 @@ export function createLlmProvider(config: VoxConfig): LlmProvider {
         apiKey: config.llm.openaiApiKey,
         model: config.llm.openaiModel,
         customPrompt: prompt,
+        hasCustomPrompt,
       });
 
     case "foundry":
@@ -47,6 +58,7 @@ export function createLlmProvider(config: VoxConfig): LlmProvider {
         apiKey: config.llm.apiKey,
         model: config.llm.model,
         customPrompt: prompt,
+        hasCustomPrompt,
       });
   }
 }

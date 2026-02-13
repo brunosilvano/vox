@@ -5,6 +5,7 @@ import {
 } from "@aws-sdk/client-bedrock-runtime";
 import { fromIni } from "@aws-sdk/credential-provider-ini";
 import { type LlmProvider } from "./provider";
+import { logLlmRequest, logLlmResponse } from "./logging";
 
 export interface BedrockConfig {
   region: string;
@@ -13,16 +14,19 @@ export interface BedrockConfig {
   secretAccessKey: string;
   modelId: string;
   customPrompt: string;
+  hasCustomPrompt: boolean;
 }
 
 export class BedrockProvider implements LlmProvider {
   private readonly client: BedrockRuntimeClient;
   private readonly modelId: string;
   private readonly customPrompt: string;
+  private readonly hasCustomPrompt: boolean;
 
   constructor(config: BedrockConfig) {
     this.modelId = config.modelId;
     this.customPrompt = config.customPrompt;
+    this.hasCustomPrompt = config.hasCustomPrompt;
 
     const clientConfig: Record<string, unknown> = {
       region: config.region,
@@ -44,8 +48,9 @@ export class BedrockProvider implements LlmProvider {
   }
 
   async correct(rawText: string): Promise<string> {
-    const hasCustom = this.customPrompt.includes("ADDITIONAL CUSTOM INSTRUCTIONS");
-    console.log("[BedrockProvider] Enhancing text, custom prompt:", hasCustom ? "YES" : "NO");
+    const isDev = process.env.NODE_ENV === "development";
+
+    logLlmRequest("BedrockProvider", rawText, this.customPrompt, this.hasCustomPrompt);
 
     const command = new ConverseCommand({
       modelId: this.modelId,
@@ -57,10 +62,15 @@ export class BedrockProvider implements LlmProvider {
         },
       ],
       inferenceConfig: {
-        temperature: 0.3,
+        temperature: 0.1,
         maxTokens: 4096,
       },
     });
+
+    if (isDev) {
+      console.log("[BedrockProvider] [DEV] Model ID:", this.modelId);
+      console.log("[BedrockProvider] [DEV] Temperature: 0.1");
+    }
 
     const response: ConverseCommandOutput = await this.client.send(command);
 
@@ -72,6 +82,9 @@ export class BedrockProvider implements LlmProvider {
       throw new Error("LLM returned no text content");
     }
 
-    return textBlock.text.trim();
+    const correctedText = textBlock.text.trim();
+    logLlmResponse("BedrockProvider", rawText, correctedText);
+
+    return correctedText;
   }
 }

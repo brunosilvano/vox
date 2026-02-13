@@ -1,10 +1,12 @@
 import { type LlmProvider } from "./provider";
+import { logLlmRequest, logLlmResponse } from "./logging";
 
 export interface FoundryConfig {
   endpoint: string;
   apiKey: string;
   model: string;
   customPrompt: string;
+  hasCustomPrompt: boolean;
 }
 
 interface AnthropicResponse {
@@ -19,11 +21,26 @@ export class FoundryProvider implements LlmProvider {
   }
 
   async correct(rawText: string): Promise<string> {
-    const hasCustom = this.config.customPrompt.includes("ADDITIONAL CUSTOM INSTRUCTIONS");
-    console.log("[FoundryProvider] Enhancing text, custom prompt:", hasCustom ? "YES" : "NO");
+    const isDev = process.env.NODE_ENV === "development";
+
+    logLlmRequest("FoundryProvider", rawText, this.config.customPrompt, this.config.hasCustomPrompt);
 
     const base = this.config.endpoint.replace(/\/+$/, "");
     const url = `${base}/v1/messages`;
+
+    const requestBody = {
+      model: this.config.model,
+      system: this.config.customPrompt,
+      messages: [
+        { role: "user", content: rawText },
+      ],
+      temperature: 0.1,
+      max_tokens: 4096,
+    };
+
+    if (isDev) {
+      console.log("[FoundryProvider] [DEV] Request body:", JSON.stringify(requestBody, null, 2));
+    }
 
     const response = await fetch(url, {
       method: "POST",
@@ -32,15 +49,7 @@ export class FoundryProvider implements LlmProvider {
         "Authorization": `Bearer ${this.config.apiKey}`,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify({
-        model: this.config.model,
-        system: this.config.customPrompt,
-        messages: [
-          { role: "user", content: rawText },
-        ],
-        temperature: 0.3,
-        max_tokens: 4096,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -53,6 +62,10 @@ export class FoundryProvider implements LlmProvider {
     if (!textBlock) {
       throw new Error("LLM returned no text content");
     }
-    return textBlock.text.trim();
+
+    const correctedText = textBlock.text.trim();
+    logLlmResponse("FoundryProvider", rawText, correctedText);
+
+    return correctedText;
   }
 }
