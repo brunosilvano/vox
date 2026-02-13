@@ -1,4 +1,4 @@
-import { app, nativeTheme, session, dialog, shell } from "electron";
+import { app, BrowserWindow, nativeTheme, session, dialog, shell } from "electron";
 import * as path from "path";
 import { ConfigManager } from "./config/manager";
 import { createSecretStore } from "./config/secrets";
@@ -107,7 +107,12 @@ app.whenReady().then(async () => {
 });
 
 app.on("activate", () => {
-  openHome(reloadConfig);
+  const visibleWindows = BrowserWindow.getAllWindows().filter(win =>
+    win.isVisible() && !win.isDestroyed() && win.getTitle() === "Vox"
+  );
+  if (visibleWindows.length === 0) {
+    openHome(reloadConfig);
+  }
 });
 
 app.on("will-quit", () => {
