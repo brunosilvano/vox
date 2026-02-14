@@ -77,6 +77,9 @@ export interface VoxAPI {
     getSystemDark(): Promise<boolean>;
     onSystemThemeChanged(callback: (isDark: boolean) => void): void;
   };
+  clipboard: {
+    write(text: string): Promise<void>;
+  };
   shell: {
     openExternal(url: string): Promise<void>;
   };
@@ -89,6 +92,15 @@ export interface VoxAPI {
     getVersion(): Promise<string>;
     quitAndInstall(): Promise<void>;
     onStateChanged(callback: (state: UpdateState) => void): () => void;
+  };
+  history: {
+    get(params: { offset: number; limit: number }): Promise<{ entries: import("../shared/types").TranscriptionEntry[]; total: number }>;
+    search(params: { query: string; offset: number; limit: number }): Promise<{ entries: import("../shared/types").TranscriptionEntry[]; total: number }>;
+    clear(): Promise<void>;
+    onEntryAdded(callback: () => void): void;
+  };
+  navigation: {
+    onNavigateTab(callback: (tab: string) => void): void;
   };
   indicator: {
     cancelRecording(): Promise<void>;
@@ -138,6 +150,9 @@ const voxApi: VoxAPI = {
       ipcRenderer.on("theme:system-changed", (_event, isDark: boolean) => callback(isDark));
     },
   },
+  clipboard: {
+    write: (text) => ipcRenderer.invoke("clipboard:write", text),
+  },
   shell: {
     openExternal: (url) => ipcRenderer.invoke("shell:open-external", url),
   },
@@ -153,6 +168,19 @@ const voxApi: VoxAPI = {
       const handler = (_event: Electron.IpcRendererEvent, state: UpdateState) => callback(state);
       ipcRenderer.on("updates:state-changed", handler);
       return () => ipcRenderer.removeListener("updates:state-changed", handler);
+    },
+  },
+  history: {
+    get: (params) => ipcRenderer.invoke("history:get", params),
+    search: (params) => ipcRenderer.invoke("history:search", params),
+    clear: () => ipcRenderer.invoke("history:clear"),
+    onEntryAdded: (callback) => {
+      ipcRenderer.on("history:entry-added", () => callback());
+    },
+  },
+  navigation: {
+    onNavigateTab: (callback) => {
+      ipcRenderer.on("navigate-tab", (_event, tab: string) => callback(tab));
     },
   },
   indicator: {

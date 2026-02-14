@@ -7,6 +7,7 @@ import { WhisperPanel } from "./components/whisper/WhisperPanel";
 import { ShortcutsPanel } from "./components/shortcuts/ShortcutsPanel";
 import { PermissionsPanel } from "./components/permissions/PermissionsPanel";
 import { GeneralPanel } from "./components/general/GeneralPanel";
+import { HistoryPanel } from "./components/history/HistoryPanel";
 import { DictionaryPanel } from "./components/dictionary/DictionaryPanel";
 import { SaveToast } from "./components/ui/SaveToast";
 import { ScrollButtons } from "./components/ui/ScrollButtons";
@@ -20,6 +21,7 @@ const PANELS: Record<string, () => JSX.Element | null> = {
   dictionary: DictionaryPanel,
   permissions: PermissionsPanel,
   shortcuts: ShortcutsPanel,
+  history: HistoryPanel,
 };
 
 export function App() {
@@ -37,6 +39,12 @@ export function App() {
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
+
+  useEffect(() => {
+    window.voxApi.navigation.onNavigateTab((tab) => {
+      useConfigStore.getState().setActiveTab(tab);
+    });
+  }, []);
 
   if (loading) {
     return (
