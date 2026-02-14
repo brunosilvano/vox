@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { recordAudio } from "../../utils/record-audio";
+import { useT } from "../../i18n-context";
 import { StatusBox } from "../ui/StatusBox";
 import { RecordIcon } from "../ui/icons";
 import card from "../shared/card.module.scss";
 import btn from "../shared/buttons.module.scss";
 
 export function PipelineTest() {
+  const t = useT();
   const [testing, setTesting] = useState(false);
   const [testStatus, setTestStatus] = useState<{ text: string; type: "info" | "success" | "error" }>({ text: "", type: "info" });
 
   const handleTest = async () => {
     setTesting(true);
-    setTestStatus({ text: "Recording for 5 seconds...", type: "info" });
+    setTestStatus({ text: t("whisper.recording"), type: "info" });
 
     try {
       const recording = await recordAudio(5);
-      setTestStatus({ text: "Transcribing...", type: "info" });
+      setTestStatus({ text: t("whisper.transcribing"), type: "info" });
       const result = await window.voxApi.pipeline.testTranscribe(recording);
 
       let output = `Local Model: ${result.rawText || "(empty)"}`;
@@ -29,7 +31,7 @@ export function PipelineTest() {
         setTestStatus({ text: output, type: "success" });
       }
     } catch (err: unknown) {
-      setTestStatus({ text: `Test failed: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+      setTestStatus({ text: t("whisper.testFailed", { error: err instanceof Error ? err.message : String(err) }), type: "error" });
     } finally {
       setTesting(false);
     }
@@ -38,8 +40,8 @@ export function PipelineTest() {
   return (
     <>
       <div className={card.header}>
-        <h2>Pipeline Test</h2>
-        <p className={card.description}>Record a 5-second audio sample to test transcription and LLM correction.</p>
+        <h2>{t("permissions.pipeline.title")}</h2>
+        <p className={card.description}>{t("permissions.pipeline.description")}</p>
       </div>
       <div className={card.body}>
         <button
@@ -48,7 +50,7 @@ export function PipelineTest() {
           className={`${btn.btn} ${btn.primary}`}
         >
           <RecordIcon />
-          Record 5s Test
+          {t("permissions.pipeline.testButton")}
         </button>
         <StatusBox text={testStatus.text} type={testStatus.type} />
       </div>

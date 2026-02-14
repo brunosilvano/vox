@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useT } from "../../i18n-context";
 import styles from "./SaveToast.module.scss";
 
 interface SaveToastProps {
@@ -9,6 +10,7 @@ interface SaveToastProps {
 }
 
 export function SaveToast({ show, timestamp, onHide, sidebarCollapsed }: SaveToastProps) {
+  const t = useT();
   const [visible, setVisible] = useState(false);
   const [prevTimestamp, setPrevTimestamp] = useState(timestamp);
 
@@ -59,7 +61,7 @@ export function SaveToast({ show, timestamp, onHide, sidebarCollapsed }: SaveToa
           strokeLinejoin="round"
         />
       </svg>
-      Settings saved
+      {t("ui.settingsSaved")}
     </div>
   );
 }

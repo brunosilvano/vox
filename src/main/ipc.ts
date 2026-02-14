@@ -6,6 +6,7 @@ import { type VoxConfig, type WhisperModelSize } from "../shared/config";
 import { getResourcePath } from "./resources";
 import { SetupChecker } from "./setup/checker";
 import { checkForUpdates, getUpdateState, quitAndInstall } from "./updater";
+import { t } from "../shared/i18n";
 
 export function registerIpcHandlers(
   configManager: ConfigManager,
@@ -112,7 +113,7 @@ export function registerIpcHandlers(
     const { transcribe } = await import("./audio/whisper");
     const config = configManager.load();
     if (!config.whisper.model) {
-      throw new Error("Please configure local model in Settings");
+      throw new Error(t("error.noModel"));
     }
     const modelPath = modelManager.getModelPath(config.whisper.model);
     const samples = resampleTo16kHz(new Float32Array(recording.audioBuffer), recording.sampleRate);
@@ -126,7 +127,7 @@ export function registerIpcHandlers(
 
     const config = configManager.load();
     if (!config.whisper.model) {
-      throw new Error("Please configure local model in Settings");
+      throw new Error(t("error.noModel"));
     }
     const modelPath = modelManager.getModelPath(config.whisper.model);
     const samples = resampleTo16kHz(new Float32Array(recording.audioBuffer), recording.sampleRate);
@@ -254,5 +255,9 @@ export function registerIpcHandlers(
 
   ipcMain.handle("clipboard:write", (_event, text: string) => {
     clipboard.writeText(text);
+  });
+
+  ipcMain.handle("i18n:system-locale", () => {
+    return app.getLocale();
   });
 }

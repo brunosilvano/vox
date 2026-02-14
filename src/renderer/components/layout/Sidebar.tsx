@@ -3,18 +3,27 @@ import { useEffect, useState } from "react";
 import type { UpdateState } from "../../../preload/index";
 import { useConfigStore } from "../../stores/config-store";
 import { usePermissions } from "../../hooks/use-permissions";
+import { useT } from "../../i18n-context";
 import { WarningBadge } from "../ui/WarningBadge";
 import styles from "./Sidebar.module.scss";
 
 const VOX_WEBSITE_URL = "https://app-vox.github.io/vox/";
 
-interface NavItem {
+interface NavItemDef {
   id: string;
-  label: string;
   icon: ReactNode;
   requiresModel?: boolean;
   requiresPermissions?: boolean;
   checkConfigured?: "speech" | "permissions" | "ai-enhancement";
+}
+
+interface NavItem extends NavItemDef {
+  label: string;
+}
+
+interface NavCategoryDef {
+  labelKey?: string;
+  items: NavItemDef[];
 }
 
 interface NavCategory {
@@ -96,31 +105,31 @@ const COLLAPSE_ICON = (
   </svg>
 );
 
-const CATEGORIES: NavCategory[] = [
+const CATEGORY_DEFS: NavCategoryDef[] = [
   {
     items: [
-      { id: "general", label: "General", icon: GEAR_ICON },
+      { id: "general", icon: GEAR_ICON },
     ],
   },
   {
-    label: "AI",
+    labelKey: "sidebar.ai",
     items: [
-      { id: "whisper", label: "Speech", icon: MIC_ICON, requiresModel: true, checkConfigured: "speech" },
-      { id: "llm", label: "AI Enhancement", icon: LAYERS_ICON, checkConfigured: "ai-enhancement" },
+      { id: "whisper", icon: MIC_ICON, requiresModel: true, checkConfigured: "speech" },
+      { id: "llm", icon: LAYERS_ICON, checkConfigured: "ai-enhancement" },
     ],
   },
   {
-    label: "Words",
+    labelKey: "sidebar.words",
     items: [
-      { id: "dictionary", label: "Dictionary", icon: BOOK_ICON },
-      { id: "history", label: "Transcriptions", icon: CLOCK_ICON },
+      { id: "dictionary", icon: BOOK_ICON },
+      { id: "history", icon: CLOCK_ICON },
     ],
   },
   {
-    label: "Interface",
+    labelKey: "sidebar.interface",
     items: [
-      { id: "permissions", label: "Permissions", icon: SHIELD_ICON, requiresPermissions: true, checkConfigured: "permissions" },
-      { id: "shortcuts", label: "Shortcuts", icon: KEYBOARD_ICON },
+      { id: "permissions", icon: SHIELD_ICON, requiresPermissions: true, checkConfigured: "permissions" },
+      { id: "shortcuts", icon: KEYBOARD_ICON },
     ],
   },
 ];
@@ -132,6 +141,7 @@ interface SidebarProps {
 const SIDEBAR_COLLAPSED_KEY = "vox:sidebar-collapsed";
 
 export function Sidebar({ onCollapseChange }: SidebarProps) {
+  const t = useT();
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true");
   const [logoSrc, setLogoSrc] = useState("");
   const [updateState, setUpdateState] = useState<UpdateState | null>(null);
@@ -140,6 +150,21 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
   const setupComplete = useConfigStore((s) => s.setupComplete);
   const config = useConfigStore((s) => s.config);
   const { status: permissionStatus } = usePermissions();
+
+  const itemLabels: Record<string, string> = {
+    general: t("tabs.general"),
+    whisper: t("tabs.speech"),
+    llm: t("tabs.aiEnhancement"),
+    dictionary: t("tabs.dictionary"),
+    history: t("tabs.history"),
+    permissions: t("tabs.permissions"),
+    shortcuts: t("tabs.shortcuts"),
+  };
+
+  const categories: NavCategory[] = CATEGORY_DEFS.map((cat) => ({
+    label: cat.labelKey ? t(cat.labelKey) : undefined,
+    items: cat.items.map((item) => ({ ...item, label: itemLabels[item.id] ?? item.id })),
+  }));
 
   useEffect(() => {
     onCollapseChange?.(collapsed);
@@ -216,7 +241,7 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
             className={styles.logoClickable}
             draggable={false}
             onClick={() => window.voxApi.shell.openExternal(VOX_WEBSITE_URL)}
-            title="Visit Vox website"
+            title={t("sidebar.visitWebsite")}
           />
         )}
         {!collapsed && <span className={styles.title}>Vox</span>}
@@ -230,14 +255,14 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
               return next;
             });
           }}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
         >
           {COLLAPSE_ICON}
         </button>
       </div>
 
       <nav className={styles.nav}>
-        {CATEGORIES.map((cat, i) => (
+        {categories.map((cat, i) => (
           <div key={cat.label ?? i} className={styles.category}>
             {cat.label && !collapsed && (
               <div className={styles.categoryLabel}>{cat.label}</div>
@@ -252,7 +277,7 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
         <button
           className={`${styles.navItem} ${activeTab === "about" ? styles.navItemActive : ""}`}
           onClick={() => setActiveTab("about")}
-          title={collapsed ? (hasUpdate ? "Update available" : "About") : undefined}
+          title={collapsed ? (hasUpdate ? t("sidebar.updateAvailable") : t("general.about.title")) : undefined}
         >
           <div className={styles.iconWrap}>
             {INFO_ICON}
@@ -267,8 +292,8 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
           </div>
           {!collapsed && (
             <span className={styles.label}>
-              About
-              {hasUpdate && <span className={styles.updateLabel}>Update Vox</span>}
+              {t("general.about.title")}
+              {hasUpdate && <span className={styles.updateLabel}>{t("sidebar.updateVox")}</span>}
             </span>
           )}
         </button>
@@ -280,7 +305,7 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
               className={styles.logoClickable}
               draggable={false}
               onClick={() => window.voxApi.shell.openExternal(VOX_WEBSITE_URL)}
-              title="Visit Vox website"
+              title={t("sidebar.visitWebsite")}
             />
           </div>
         )}

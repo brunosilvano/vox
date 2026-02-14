@@ -13,6 +13,7 @@ import { SaveToast } from "./components/ui/SaveToast";
 import { ScrollButtons } from "./components/ui/ScrollButtons";
 import { useSaveToast } from "./hooks/use-save-toast";
 import { useTheme } from "./hooks/use-theme";
+import { I18nProvider } from "./i18n-context";
 
 const PANELS: Record<string, () => JSX.Element | null> = {
   general: GeneralPanel,
@@ -62,8 +63,10 @@ export function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-text-secondary text-sm">
-        Loading...
+      <div className="flex items-center justify-center h-full text-text-secondary text-sm" style={{ gap: "8px" }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}>
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
       </div>
     );
   }
@@ -71,15 +74,17 @@ export function App() {
   const Panel = PANELS[activeTab] ?? WhisperPanel;
 
   return (
-    <div className="flex h-full">
-      <Sidebar onCollapseChange={handleCollapseChange} />
-      <div className="flex flex-col flex-1 min-w-0">
-        <main className="content" ref={contentRef}>
-          <Panel />
-        </main>
-        <SaveToast show={showToast} timestamp={toastTimestamp} onHide={hideToast} sidebarCollapsed={sidebarCollapsed} />
-        <ScrollButtons containerRef={contentRef} />
+    <I18nProvider>
+      <div className="flex h-full">
+        <Sidebar onCollapseChange={handleCollapseChange} />
+        <div className="flex flex-col flex-1 min-w-0">
+          <main className="content" ref={contentRef}>
+            <Panel />
+          </main>
+          <SaveToast show={showToast} timestamp={toastTimestamp} onHide={hideToast} sidebarCollapsed={sidebarCollapsed} />
+          <ScrollButtons containerRef={contentRef} />
+        </div>
       </div>
-    </div>
+    </I18nProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useConfigStore } from "../../stores/config-store";
+import { useT } from "../../i18n-context";
 import card from "../shared/card.module.scss";
 import form from "../shared/forms.module.scss";
 import buttons from "../shared/buttons.module.scss";
@@ -27,6 +28,7 @@ function getWhisperTermBudget(dictionary: string[]): { fits: number; total: numb
 }
 
 export function DictionaryPanel() {
+  const t = useT();
   const config = useConfigStore((s) => s.config);
   const updateConfig = useConfigStore((s) => s.updateConfig);
   const saveConfig = useConfigStore((s) => s.saveConfig);
@@ -90,15 +92,15 @@ export function DictionaryPanel() {
   return (
     <div className={card.card}>
       <div className={card.header}>
-        <h2>Dictionary</h2>
+        <h2>{t("dictionary.title")}</h2>
         <p className={card.description}>
-          Add words and phrases to improve transcription accuracy for names, technical terms, and jargon.
+          {t("dictionary.description")}
         </p>
       </div>
 
       {budget.overLimit && (
         <div className={card.warningBanner}>
-          Your dictionary has {budget.total} entries but only {budget.fits} fit in the speech recognition prompt. All entries will still be used for AI enhancement.
+          {t("dictionary.overLimitWarning", { total: budget.total, fits: budget.fits })}
         </div>
       )}
 
@@ -110,24 +112,24 @@ export function DictionaryPanel() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a word or phrase..."
+            placeholder={t("dictionary.placeholder")}
           />
           <button
             onClick={() => addTerms(inputValue)}
             disabled={!inputValue.trim()}
             className={`${buttons.btn} ${buttons.primary}`}
           >
-            Add
+            {t("dictionary.add")}
           </button>
         </div>
         <p className={form.hint}>
-          Use commas to add multiple terms at once, e.g. "John, Project Alpha, Zoom"
+          {t("dictionary.hint")}
         </p>
 
         {sorted.length > 0 && (
           <>
             <div className={styles.listHeader}>
-              <span className={styles.count}>{sorted.length} {sorted.length === 1 ? "entry" : "entries"}</span>
+              <span className={styles.count}>{sorted.length === 1 ? t("dictionary.oneEntry") : t("dictionary.entries", { count: sorted.length })}</span>
             </div>
             <div className={styles.entryList}>
               {pageEntries.map((term) => (
@@ -136,7 +138,7 @@ export function DictionaryPanel() {
                   <button
                     className={styles.deleteBtn}
                     onClick={() => removeTerm(term)}
-                    title="Remove"
+                    title={t("dictionary.remove")}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="6" x2="6" y2="18" />
@@ -150,6 +152,7 @@ export function DictionaryPanel() {
             {sorted.length > 0 && (
               <div className={styles.pagination}>
                 <div className={styles.pageInfo}>
+                  {/* eslint-disable-next-line i18next/no-literal-string */}
                   {page} / {totalPages || 1}
                 </div>
                 <div className={styles.pageControls}>
@@ -160,11 +163,13 @@ export function DictionaryPanel() {
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                   </button>
                 </div>
+                {/* eslint-disable i18next/no-literal-string */}
                 <select className={styles.pageSizeSelect} value={pageSize} onChange={(e) => handlePageSizeChange(Number(e.target.value))}>
                   <option value={10}>10 / page</option>
                   <option value={25}>25 / page</option>
                   <option value={50}>50 / page</option>
                 </select>
+                {/* eslint-enable i18next/no-literal-string */}
               </div>
             )}
           </>
@@ -172,7 +177,7 @@ export function DictionaryPanel() {
 
         {sorted.length === 0 && (
           <div className={styles.emptyState}>
-            No entries yet. Add names, places, or any words that are often misheard during transcription.
+            {t("dictionary.emptyState")}
           </div>
         )}
       </div>

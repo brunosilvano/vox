@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { ModelInfo } from "../../../preload/index";
+import { useT } from "../../i18n-context";
 import { TrashIcon, XIcon } from "../ui/icons";
 import styles from "./ModelRow.module.scss";
 
@@ -17,6 +18,7 @@ function formatBytes(bytes: number): string {
 }
 
 export function ModelRow({ model, selected, onSelect, onDelete }: ModelRowProps) {
+  const t = useT();
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(model.downloaded);
   const [progress, setProgress] = useState({ downloaded: 0, total: 0 });
@@ -95,18 +97,20 @@ export function ModelRow({ model, selected, onSelect, onDelete }: ModelRowProps)
           onChange={() => onSelect(model.size)}
         />
         <span className={styles.nameBlock}>
-          <span className={styles.name}>{model.info.label} <span className={styles.desc}>{model.info.description}</span></span>
+          <span className={styles.name}>{t("whisper.model." + model.size + ".label")} <span className={styles.desc}>{t("whisper.model." + model.size + ".description")}</span></span>
           <span className={styles.technicalName}>{model.size}</span>
         </span>
       </label>
       {downloading ? (
         <div className={styles.progress}>
+          {/* eslint-disable i18next/no-literal-string */}
           <div className={styles.progressInfo}>
             <span>{percent}%</span>
             <span className={styles.progressSize}>
               {formatBytes(progress.downloaded)} / {formatBytes(progress.total)}
             </span>
           </div>
+          {/* eslint-enable i18next/no-literal-string */}
           <div className={styles.progressBarRow}>
             <div className={styles.progressBar}>
               <div className={styles.progressFill} style={{ width: `${percent}%` }} />
@@ -114,7 +118,7 @@ export function ModelRow({ model, selected, onSelect, onDelete }: ModelRowProps)
             <button
               onClick={handleCancel}
               className={styles.cancelBtn}
-              title="Cancel download"
+              title={t("model.cancelDownload")}
             >
               <XIcon />
             </button>
@@ -122,16 +126,16 @@ export function ModelRow({ model, selected, onSelect, onDelete }: ModelRowProps)
         </div>
       ) : downloaded ? (
         <div className={styles.actions}>
-          <span className={styles.downloaded}>Downloaded</span>
+          <span className={styles.downloaded}>{t("model.downloaded")}</span>
           {confirmingDelete ? (
             <button onClick={handleDeleteClick} className={styles.confirmDeleteBtn}>
-              Confirm?
+              {t("model.confirmDelete")}
             </button>
           ) : (
             <button
               onClick={handleDeleteClick}
               className={styles.deleteBtn}
-              title="Delete model"
+              title={t("model.deleteModel")}
             >
               <TrashIcon />
             </button>
@@ -143,7 +147,7 @@ export function ModelRow({ model, selected, onSelect, onDelete }: ModelRowProps)
           disabled={downloading}
           className={styles.downloadBtn}
         >
-          Download
+          {t("model.download")}
         </button>
       )}
     </div>
